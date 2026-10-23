@@ -12,6 +12,7 @@ import CalendarPage from './components/CalendarPage';
 import IdeasPage from './components/IdeasPage';
 import PublishPage from './components/PublishingPage';
 import BreakdownPage from './components/BreakdownPage';
+import PromotionPage from './components/promotion/PromotionPage';
 import SubNav from './components/SubNav';
 import OnboardingWizard from './components/OnboardingWizard';
 import SettingsPanel from './components/SettingsPanel';
@@ -760,6 +761,8 @@ export default function App() {
         return <AccountsPage />;
       case 'profile':
         return <ProfilePage persona={selectedPersona} onUsePersona={handlePersonaChange} onNewProfile={() => setShowWizard(true)} onDeleted={handleProfileDeleted} />;
+      case 'promotion':
+        return <PromotionPage />;
       default:
         return null;
     }

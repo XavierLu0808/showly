@@ -440,6 +440,12 @@ async def _lifespan(_app: FastAPI):
     """应用生命周期：关机时回收公众号扫码进程（替代已弃用的 on_event）。"""
     global _HARNESS_LOOP
     _HARNESS_LOOP = asyncio.get_running_loop()
+    # 产品推广平台：建库/迁移 + 恢复上次服务重启中断的任务
+    try:
+        from easel.promotion import router as promotion_router
+        promotion_router.ensure_ready()
+    except Exception as exc:  # noqa: BLE001 —— 推广库初始化失败不阻断主服务
+        print(f"[promotion] 初始化失败：{exc}", file=sys.stderr, flush=True)
     yield
     tasks = list(_HARNESS_TASKS)
     for task in tasks:
@@ -453,6 +459,10 @@ async def _lifespan(_app: FastAPI):
 
 
 app = FastAPI(title="Easel", docs_url=None, redoc_url=None, lifespan=_lifespan)
+
+# 产品推广平台（第一版）：独立路由模块接入，不与既有接口混写
+from easel.promotion.router import router as _promotion_router  # noqa: E402
+app.include_router(_promotion_router)
 
 def _local_ports(env_port: str) -> set[str]:
     """本机写守卫放行的端口集合：固定的 7860/7870/5173，加上 `--port`/EASEL_PORT

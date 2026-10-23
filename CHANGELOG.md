@@ -2,6 +2,20 @@
 
 All notable changes to Easel are documented in this file.
 
+## [Unreleased] - 2026-10-23
+
+### Added
+
+- Added the first version of the product promotion platform (`我的产品` in the sidebar): manage multiple products with fact-checked profiles, asset libraries with reference-protected deletion, and campaigns from launch/feature-update/tutorial templates.
+- Added content workflow with per-edit revisions: rule-based checks (fact status, pricing claims, evidence, asset consistency, platform format, completeness, forbidden claims), human review bound to a specific revision, and automatic review invalidation on content or product-fact changes.
+- Added persistent generation jobs (queued/running/succeeded/failed/cancelled) with step/error records, idempotent retry, and restart recovery that marks interrupted jobs retryable.
+- Added copy generation for briefs, angles, Xiaohongshu notes/cards, WeChat articles, and demo video scripts — model-driven when the direct API is configured, with clearly-labeled template fallback otherwise.
+- Added manual publishing loop: campaign ZIP export (reviewed contents only, with publishing instructions), manual publication backfill marked `manual-confirmation`, UTM tracking links, manual and batch-imported metrics with duplicate-batch rejection.
+
+### Improved
+
+- New business is served by an independent `easel/promotion/` module (SQLite with versioned migrations) mounted at `/api/promotion/*`, keeping `web/app.py` unchanged in behavior.
+
 ## [0.3.0] - 2026-10-12
 
 ### Added
