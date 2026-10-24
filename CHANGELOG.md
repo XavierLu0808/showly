@@ -2,7 +2,15 @@
 
 All notable changes to Easel are documented in this file.
 
-## [Unreleased] - 2026-10-23
+## [Unreleased] - 2026-10-24
+
+### Fixed
+
+- Promotion reviews now recompute checks for the displayed revision and return checks as arrays; content, fact and profile changes invalidate reviews atomically across connections.
+- Validate product/version ownership of assets and campaign/content references during writes, review and export; prevent concurrent file ownership claims and reject missing or escaped asset paths.
+- Campaign ZIP downloads now use POST with visible errors and mark successful exports without creating publication records.
+- Generation and retries use persisted version/input snapshots, preserve provenance on manual edits, and reject stale generation/check results after a concurrent edit; repeated plan confirmation no longer duplicates content tasks.
+
 
 ### Added
 

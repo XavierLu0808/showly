@@ -32,7 +32,7 @@ export default function ContentEditorView({ contentId, onBack, onToast }: Props)
 
   const latest = content.revisions[content.revisions.length - 1];
   const activeReview = latest?.review && !latest.review.invalidated_at ? latest.review : null;
-  const canReview = content.status === 'ready' || content.status === 'reviewed';
+  const canReview = ['ready', 'reviewed', 'exported', 'published'].includes(content.status);
   const issues = (activeReview?.checks || []) as Array<{ item: string; severity: string; message: string; suggestion: string }>;
   const blocking = issues.filter((i) => i.severity === 'error');
 
@@ -80,7 +80,7 @@ export default function ContentEditorView({ contentId, onBack, onToast }: Props)
   const doReview = async (approved: boolean) => {
     if (dirty) { onToast('先保存修改再审核'); return; }
     try {
-      await reviewContent(contentId, approved);
+      await reviewContent(contentId, approved, latest.id);
       onToast(approved ? '已人工审核通过（绑定当前修订）' : '已撤销审核');
       load();
     } catch (e) { onToast(String((e as Error).message || e)); }
@@ -123,7 +123,7 @@ export default function ContentEditorView({ contentId, onBack, onToast }: Props)
               ✅ 人工审核
             </button>
           )}
-          {content.status === 'reviewed' && (
+          {activeReview?.approved && (
             <button className="btn btn-sm" onClick={() => doReview(false)}>撤销审核</button>
           )}
         </div>
@@ -166,7 +166,7 @@ export default function ContentEditorView({ contentId, onBack, onToast }: Props)
           {/* 检查结果 */}
           <div className="card" style={{ padding: 14, marginBottom: 10 }}>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>检查结果</div>
-            {issues.length === 0 && <div className="empty-hint">还没执行检查，点上方「检查」</div>}
+            {issues.length === 0 && <div className="empty-hint">{activeReview ? '检查通过，未发现问题' : '还没执行检查，点上方「检查」'}</div>}
             {issues.map((iss, i) => (
               <div key={i} className={`promotion-issue promotion-issue-${iss.severity}`}>
                 <div style={{ fontWeight: 600, fontSize: 12 }}>

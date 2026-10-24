@@ -217,29 +217,7 @@ def api_start_campaign_job(campaign_id: str, job_type: str):
 def api_confirm_plan(campaign_id: str):
     """确认角度与清单：把已选 angles 生成为内容任务清单（contents）。"""
     try:
-        campaign = service.get_campaign(campaign_id)
-        angles = campaign.get("angles") or []
-        if not angles:
-            raise service.PromotionError("请先生成并选择宣传角度")
-        created = []
-        seen = set()
-        existing = {c["format"] for c in campaign["contents"]}
-        for angle in angles:
-            if not angle.get("selected", True):
-                continue
-            for fmt in angle.get("formats") or []:
-                platform = {"note": "xiaohongshu", "card_set": "xiaohongshu",
-                            "article": "wechat-oa", "video": "short-video"}[fmt]
-                key = (platform, fmt, angle.get("angle", ""))
-                if key in seen:
-                    continue
-                seen.add(key)
-                item = service.create_content(ContentCreate(
-                    campaign_id=campaign_id, platform=platform, format=fmt,
-                    angle=angle.get("angle", "")))
-                created.append(item)
-        service.update_campaign(campaign_id, CampaignUpdate(brief_confirmed=True))
-        return {"ok": True, "created": created}
+        return {"ok": True, "created": service.confirm_plan(campaign_id)}
     except service.PromotionError as exc:
         raise HTTPException(_status_for(exc), str(exc)) from None
 
@@ -296,7 +274,7 @@ def api_run_checks(content_id: str):
         content = service.get_content(content_id)
         latest = content["revisions"][-1]
         issues = run_checks(content, latest)
-        service.record_check(content_id, issues)
+        service.record_check(content_id, issues, revision_id=latest["id"])
         return {"ok": True, "issues": issues, "content": service.get_content(content_id)}
     except service.PromotionError as exc:
         raise HTTPException(_status_for(exc), str(exc)) from None
@@ -305,6 +283,8 @@ def api_run_checks(content_id: str):
 @router.post("/contents/{content_id}/review")
 def api_review_content(content_id: str, payload: ReviewDecision):
     try:
+        if payload.revision_id is None:
+            raise service.PromotionError("请指定要审核的内容修订 revision_id")
         return {"ok": True, "content": service.approve_content(content_id, payload)}
     except service.PromotionError as exc:
         raise HTTPException(_status_for(exc), str(exc)) from None

@@ -20,10 +20,15 @@ interface PromotionPageProps {
 
 export default function PromotionPage({ onToast }: PromotionPageProps) {
   const [view, setView] = useState<View>({ kind: 'list' });
-  const toast = onToast || (() => {});
+  const [notice, setNotice] = useState('');
+  const localToast = useCallback((message: string) => setNotice(message), []);
+  const toast = onToast || localToast;
 
   return (
     <div className="page-scroll">
+      {notice && <div role="status" className="card" style={{ padding: 12, marginBottom: 12 }}>
+        {notice}<button className="btn btn-sm" style={{ marginLeft: 8 }} onClick={() => setNotice('')}>关闭</button>
+      </div>}
       {view.kind === 'list' && <ProductsView onOpen={(id) => setView({ kind: 'product', productId: id })} onToast={toast} />}
       {view.kind === 'product' && (
         <ProductDetailView

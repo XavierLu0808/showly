@@ -276,8 +276,8 @@ export function runChecks(contentId: string): Promise<{ issues: CheckIssue[] }> 
   return request<{ issues: CheckIssue[] }>(`/api/promotion/contents/${contentId}/check`, json('POST', {}));
 }
 
-export function reviewContent(contentId: string, approved: boolean): Promise<ContentDetail> {
-  return request<{ content: ContentDetail }>(`/api/promotion/contents/${contentId}/review`, json('POST', { approved })).then((r) => r.content);
+export function reviewContent(contentId: string, approved: boolean, revisionId: string): Promise<ContentDetail> {
+  return request<{ content: ContentDetail }>(`/api/promotion/contents/${contentId}/review`, json('POST', { approved, revision_id: revisionId })).then((r) => r.content);
 }
 
 // ---------- 任务 / 发布 / 指标 ----------
@@ -300,8 +300,39 @@ export function backfillPublication(contentId: string, input: {
   return request<{ publication: Publication }>(`/api/promotion/contents/${contentId}/publications`, json('POST', input)).then((r) => r.publication);
 }
 
-export function campaignZipUrl(campaignId: string): string {
-  return `${BASE}/api/promotion/campaigns/${campaignId}/export-zip`;
+export async function exportCampaignZip(campaignId: string): Promise<void> {
+  const res = await fetch(`${BASE}/api/promotion/campaigns/${campaignId}/export-zip`, {
+    method: 'POST', cache: 'no-store',
+  });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const error = await res.json();
+      detail = error.detail || error.message || '';
+    } catch { /* 非 JSON 错误使用状态码提示 */ }
+    throw new Error(detail || `导出失败（${res.status}）`);
+  }
+  const disposition = res.headers.get('Content-Disposition') || '';
+  const encoded = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i)?.[1];
+  const plain = disposition.match(/filename\s*=\s*(?:"([^"]+)"|([^;]+))/i);
+  let filename = plain?.[1] || plain?.[2]?.trim() || `campaign-${campaignId}.zip`;
+  if (encoded) {
+    try { filename = decodeURIComponent(encoded.trim()); }
+    catch { /* 无效编码沿用普通文件名 */ }
+  }
+  filename = filename.split(/[\\/]/).pop()?.replace(/\p{Cc}/gu, '') || `campaign-${campaignId}.zip`;
+  const url = URL.createObjectURL(await res.blob());
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  try {
+    document.body.appendChild(anchor);
+    anchor.click();
+  } finally {
+    anchor.remove();
+    // 浏览器开始读取下载后再释放 URL；失败路径也会清理。
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 }
 
 export function addMetric(campaignId: string, input: {

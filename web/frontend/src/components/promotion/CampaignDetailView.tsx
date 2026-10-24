@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   fetchCampaign, startCampaignJob, confirmPlan, fetchJob, retryJob, cancelJob,
-  backfillPublication, campaignZipUrl, addMetric, createTrackingLink,
+  backfillPublication, exportCampaignZip, addMetric, createTrackingLink,
   TEMPLATE_LABELS, PLATFORM_LABELS, FORMAT_LABELS, STATUS_LABELS,
   type CampaignDetail, type GenerationJob,
 } from '../../lib/promotionApi';
@@ -35,6 +35,8 @@ function useJobWaiter(onToast: (m: string) => void) {
 export default function CampaignDetailView({ campaignId, onBack, onOpenContent, onToast }: Props) {
   const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [busy, setBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState('');
   const [pubLink, setPubLink] = useState('');
   const [metricName, setMetricName] = useState('views');
   const [metricValue, setMetricValue] = useState('');
@@ -106,6 +108,22 @@ export default function CampaignDetailView({ campaignId, onBack, onOpenContent, 
     } catch (e) { onToast(String((e as Error).message || e)); }
   };
 
+  const doExport = async () => {
+    if (exporting) return;
+    setExporting(true);
+    setExportError('');
+    try {
+      await exportCampaignZip(campaignId);
+      load();
+    } catch (e) {
+      const message = String((e as Error).message || e);
+      setExportError(message);
+      onToast(message);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (!campaign) return <div className="empty-hint">加载中…</div>;
 
   const reviewedCount = campaign.contents.filter((c) =>
@@ -122,11 +140,12 @@ export default function CampaignDetailView({ campaignId, onBack, onOpenContent, 
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <a className="btn btn-sm" href={campaignZipUrl(campaignId)} onClick={(e) => {
-            if (reviewedCount === 0) { e.preventDefault(); onToast('还没有已审核内容，暂不能导出宣传包'); }
-          }}>⬇ 导出宣传包 ZIP</a>
+          <button className="btn btn-sm" disabled={exporting || reviewedCount === 0}
+            title={reviewedCount === 0 ? '需要至少一条已审核内容' : undefined}
+            onClick={doExport}>{exporting ? '导出中…' : '⬇ 导出宣传包 ZIP'}</button>
         </div>
       </div>
+      {exportError && <div className="promotion-issue promotion-issue-error" role="alert">{exportError}</div>}
 
       {/* 活动简报 */}
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
@@ -182,7 +201,7 @@ export default function CampaignDetailView({ campaignId, onBack, onOpenContent, 
               {c.latest_revision?.title ? ` · ${c.latest_revision.title}` : ''}
             </span>
             <span className={`badge promotion-content-${c.status}`}>{STATUS_LABELS[c.status] || c.status}</span>
-            {c.status === 'reviewed' && (
+            {['reviewed', 'exported'].includes(c.status) && (
               <button className="btn btn-sm" style={{ marginLeft: 6 }} onClick={(e) => {
                 e.stopPropagation();
                 doBackfill(c.id, c.platform);
@@ -190,7 +209,7 @@ export default function CampaignDetailView({ campaignId, onBack, onOpenContent, 
             )}
           </div>
         ))}
-        {campaign.contents.some((c) => c.status === 'reviewed') && (
+        {campaign.contents.some((c) => ['reviewed', 'exported'].includes(c.status)) && (
           <input className="field" style={{ marginTop: 8 }} value={pubLink.trim()} placeholder="粘贴已发布作品链接，再点对应内容的「回填链接」"
             onChange={(e) => setPubLink(e.target.value)} />
         )}

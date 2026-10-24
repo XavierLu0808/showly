@@ -1,4 +1,4 @@
-"""Easel CLI — 社媒内容工作流整合层。
+"""Showly CLI — 社媒内容工作流整合层。
 
 用法：
     easel chat                              # 新会话（选画像后进入）
@@ -62,7 +62,7 @@ def _build_chat_cmd(session_key: str, message_prefix: str = "") -> list[str]:
     PATH 里的 openclaw 是 .cmd shim，CreateProcess 跑不了（见 easel/openclaw_cmd.py）。
     必须用 tui 子命令——`chat`/`terminal` 是 tui 的别名，会强制本地模式
     （openclaw dist/tui-cli-*.js: invokedSubcommand === "chat" → isLocal = true），
-    而 --local 要求独占 state 目录，与 Easel 自启的 gateway 冲突，只会打印
+    而 --local 要求独占 state 目录，与 Showly 自启的 gateway 冲突，只会打印
     "A Gateway is running for this state directory" 后退出。
     """
     cmd = openclaw_base_cmd() + [
@@ -82,10 +82,10 @@ def _build_chat_cmd(session_key: str, message_prefix: str = "") -> list[str]:
 
 
 def cmd_chat(_args) -> int:
-    """启动 Easel 交互对话（每次新会话）。"""
+    """启动 Showly 交互对话（每次新会话）。"""
 
     print()
-    print(f"  {CYAN}Easel{NC} — 社媒内容工作流")
+    print(f"  {CYAN}Showly{NC} — 社媒内容工作流")
     print()
 
     # ---- 选择画像 ----
@@ -228,7 +228,7 @@ def cmd_web(args) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="easel",
-        description="Easel — 社媒内容工作流整合层 CLI",
+        description="Showly — 社媒内容工作流整合层 CLI",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 

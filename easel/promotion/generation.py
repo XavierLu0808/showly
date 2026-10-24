@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 
 from . import service
@@ -50,21 +51,78 @@ def _llm_json(prompt: str, timeout: float = 120.0) -> dict | None:
         return None
 
 
-def build_context(campaign_id: str) -> dict:
-    """构建产品上下文：已确认事实、活动配置、可用素材。"""
+def build_context(campaign_id: str, *, asset_refs: list[str] | None = None) -> dict:
+    """绑定已确认版本的事实；产品偏好和活动配置在排队时一起冻结。"""
+    version = service.get_campaign_version(campaign_id)
     campaign = service.get_campaign(campaign_id)
     product = service.get_product(campaign["product_id"])
-    confirmed_facts = [f for f in product["facts"] if f["confirmed"]]
+    facts = version["fact_snapshot"]
+    assets = [asset for asset in product["assets"]
+              if asset["version_id"] in (None, version["id"])]
+    if asset_refs is not None:
+        by_id = {asset["id"]: asset for asset in assets}
+        if any(asset_id not in by_id for asset_id in asset_refs):
+            raise service.PromotionError("素材不存在或不属于该产品版本")
+        assets = [by_id[asset_id] for asset_id in asset_refs]
     return {
         "product": {k: product[k] for k in
                     ("id", "name", "tagline", "website", "language", "brand_color",
-                     "forbidden_claims")},
-        "facts": confirmed_facts,
-        "pending_facts": [f for f in product["facts"] if not f["confirmed"]],
-        "assets": product["assets"],
+                     "default_persona", "forbidden_claims")},
+        "version": {k: version[k] for k in
+                    ("id", "version_label", "confirmed", "confirmed_at")},
+        "facts": [f for f in facts if f["confirmed"]],
+        "pending_facts": [f for f in facts if not f["confirmed"]],
+        "assets": assets,
         "campaign": {k: campaign[k] for k in
-                     ("id", "template", "goal", "audience", "channels", "voice", "cta")},
+                     ("id", "product_id", "version_id", "template", "goal", "audience",
+                      "channels", "voice", "cta", "angles", "brief_confirmed")},
     }
+
+
+def capture_inputs(job_type: str, *, campaign_id: str | None = None,
+                   content_id: str | None = None) -> dict:
+    """保存实际生成输入，而非只保存可在执行时重新解析的对象 ID。"""
+    content = None
+    if content_id is not None:
+        item = service.get_content(content_id)
+        if campaign_id is not None and item["campaign_id"] != campaign_id:
+            raise service.PromotionError("内容不属于该活动")
+        campaign_id = item["campaign_id"]
+        latest = item["revisions"][-1]
+        content = {key: item[key] for key in
+                   ("id", "campaign_id", "platform", "format", "angle")}
+        content.update(revision_id=latest["id"], asset_refs=latest["asset_refs"])
+        if job_type == "checks":
+            # 检查任务固定目标修订；检查规则仍由服务层以当前事实重新校验。
+            return {"schema_version": 1, "content": content, "revision": latest}
+    if campaign_id is None:
+        raise service.PromotionError("生成任务必须绑定活动")
+    context = build_context(campaign_id,
+                            asset_refs=content["asset_refs"] if content else None)
+    if job_type == "content_draft" and not context["campaign"]["brief_confirmed"]:
+        raise service.PromotionError("请先确认宣传方案再生成内容")
+    return {"schema_version": 1, "context": context, "content": content}
+
+
+def _snapshot_context(input_snapshot: dict, campaign_id: str) -> dict:
+    """只接受本模块保存的快照；旧任务缺快照时明确失败。"""
+    context = input_snapshot.get("context")
+    if (input_snapshot.get("schema_version") != 1 or not isinstance(context, dict)
+            or context.get("campaign", {}).get("id") != campaign_id):
+        raise service.PromotionError("任务缺少有效输入快照，请重新创建任务")
+    return copy.deepcopy(context)
+
+
+def _preferences(context: dict) -> str:
+    return (
+        f"产品版本：{context['version']['version_label']}\n"
+        f"语言：{context['product']['language']}\n"
+        f"表达身份：{context['product']['default_persona'] or '未指定'}\n"
+        f"语气：{context['campaign']['voice'] or '清晰准确'}\n"
+        f"目标：{context['campaign']['goal']}；行动引导：{context['campaign']['cta']}\n"
+        f"禁止表述：{context['product']['forbidden_claims'] or '无补充'}\n"
+        f"可用素材及限制：{json.dumps(context['assets'], ensure_ascii=False)}\n"
+    )
 
 
 TEMPLATE_LABELS = {
@@ -90,8 +148,9 @@ def _entry_line(context: dict) -> str:
 
 # ---------------------------------------------------------------- 活动简报
 
-def generate_brief(campaign_id: str) -> dict:
-    context = build_context(campaign_id)
+def generate_brief(campaign_id: str, *, input_snapshot: dict | None = None) -> dict:
+    snapshot = input_snapshot if input_snapshot is not None else capture_inputs("brief", campaign_id=campaign_id)
+    context = _snapshot_context(snapshot, campaign_id)
     prompt = (
         f"为产品写一份推广活动简报，输出 JSON：{{\"brief\": \"...\"}}。\n"
         f"产品：{context['product']['name']}，{context['product']['tagline']}\n"
@@ -99,6 +158,7 @@ def generate_brief(campaign_id: str) -> dict:
         f"目标受众：{context['campaign']['audience'] or '待补充'}\n"
         f"已确认事实：\n{_fact_lines(context)}\n"
         f"体验入口：{_entry_line(context)}\n"
+        f"{_preferences(context)}"
         "简报包含：活动主题、目标、渠道侧重、内容清单建议、注意事项。300 字内。"
     )
     result = _llm_json(prompt)
@@ -123,8 +183,9 @@ def generate_brief(campaign_id: str) -> dict:
 
 # ---------------------------------------------------------------- 宣传角度
 
-def generate_angles(campaign_id: str) -> dict:
-    context = build_context(campaign_id)
+def generate_angles(campaign_id: str, *, input_snapshot: dict | None = None) -> dict:
+    snapshot = input_snapshot if input_snapshot is not None else capture_inputs("angles", campaign_id=campaign_id)
+    context = _snapshot_context(snapshot, campaign_id)
     prompt = (
         "基于产品档案提出 3 个差异化的宣传角度（不同场景或叙述，不是同义改写），"
         '输出 JSON：{"angles": [{"angle": "...", "audience": "...", "hook": "...",'
@@ -132,6 +193,7 @@ def generate_angles(campaign_id: str) -> dict:
         ' "cta": "..."}]}\n'
         f"产品：{context['product']['name']}——{context['product']['tagline']}\n"
         f"已确认事实：\n{_fact_lines(context)}\n"
+        f"{_preferences(context)}"
     )
     result = _llm_json(prompt)
     angles = (result or {}).get("angles") if isinstance(result, dict) else None
@@ -172,6 +234,7 @@ def _content_prompt(context: dict, platform: str, fmt: str, angle: dict | None) 
         f"宣传角度：{json.dumps(angle, ensure_ascii=False) if angle else '默认产品介绍'}\n"
         f"已确认事实：\n{_fact_lines(context)}\n"
         f"体验入口：{_entry_line(context)}\n"
+        f"{_preferences(context)}"
         "小红书：标题≤20字，正文≤1000字，口语化带话题；"
         "卡片 structure.pages 为 5 页，每页 {text, screenshot_hint}；"
         "公众号：完整正文含操作步骤；"
@@ -179,15 +242,16 @@ def _content_prompt(context: dict, platform: str, fmt: str, angle: dict | None) 
     )
 
 
-def generate_content(content_id: str) -> dict:
-    """生成内容草稿：优先模型，降级模板；返回 title/body/structure。"""
-    content = service.get_content(content_id)
-    context = build_context(content["campaign_id"])
-    angle = None
-    if content.get("angle"):
-        campaign = service.get_campaign(content["campaign_id"])
-        angle = next((a for a in campaign.get("angles", [])
-                      if a.get("angle") == content["angle"]), None)
+def generate_content(content_id: str, *, input_snapshot: dict | None = None) -> dict:
+    """从冻结输入生成；执行及重试不再查询实时产品事实和活动配置。"""
+    snapshot = input_snapshot if input_snapshot is not None else capture_inputs(
+        "content_draft", content_id=content_id)
+    content = snapshot.get("content")
+    if not isinstance(content, dict) or content.get("id") != content_id:
+        raise service.PromotionError("任务内容与输入快照不一致")
+    context = _snapshot_context(snapshot, content["campaign_id"])
+    angle = next((a for a in context["campaign"]["angles"]
+                  if a.get("angle") == content.get("angle")), None)
     result = _llm_json(_content_prompt(context, content["platform"], content["format"], angle))
     mode = "model"
     if not isinstance(result, dict) or not result.get("body"):
@@ -198,6 +262,8 @@ def generate_content(content_id: str) -> dict:
         "body": str(result.get("body") or ""),
         "structure": result.get("structure") or {},
         "generation_mode": mode,
+        "input_snapshot": copy.deepcopy(snapshot),
+        "asset_refs": list(content["asset_refs"]),
     }
 
 

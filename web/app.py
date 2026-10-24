@@ -1,4 +1,4 @@
-"""Easel Web — FastAPI 后端（含 SSE 流式输出）."""
+"""Showly Web — FastAPI 后端（含 SSE 流式输出）."""
 from __future__ import annotations
 
 import asyncio
@@ -458,7 +458,7 @@ async def _lifespan(_app: FastAPI):
     _stop_mp_login_on_shutdown()
 
 
-app = FastAPI(title="Easel", docs_url=None, redoc_url=None, lifespan=_lifespan)
+app = FastAPI(title="Showly", docs_url=None, redoc_url=None, lifespan=_lifespan)
 
 # 产品推广平台（第一版）：独立路由模块接入，不与既有接口混写
 from easel.promotion.router import router as _promotion_router  # noqa: E402
@@ -466,7 +466,7 @@ app.include_router(_promotion_router)
 
 def _local_ports(env_port: str) -> set[str]:
     """本机写守卫放行的端口集合：固定的 7860/7870/5173，加上 `--port`/EASEL_PORT
-    实际配置的端口——否则自定义端口跑 Easel 时，前端自己发的写请求（包括发消息
+    实际配置的端口——否则自定义端口跑 Showly 时，前端自己发的写请求（包括发消息
     的 /api/chat/stream）会被 local_write_guard 当跨站请求 403 掉。"""
     return {'7860', '7870', '5173', (env_port or '').strip() or '7860'}
 
@@ -477,7 +477,7 @@ _LOCAL_ORIGINS = [f'http://{host}:{port}'
 _LOCAL_ORIGINS += [o.strip() for o in os.environ.get('EASEL_EXTRA_ORIGINS', '').split(',') if o.strip()]
 _EXTRA_HOSTS = [h.strip() for h in os.environ.get('EASEL_EXTRA_HOSTS', '').split(',') if h.strip()]
 
-# VSCode/code-server 等远程开发环境常通过 VSCODE_PROXY_URI 这个反代域名访问 Easel
+# VSCode/code-server 等远程开发环境常通过 VSCODE_PROXY_URI 这个反代域名访问 Showly
 # （真实连接仍是本机回环，代理在同一台机器上转发）；不识别这个域名会让通过代理
 # 打开的页面从第一个请求起就被下面的 TrustedHostMiddleware/CORS 拒绝——收紧前
 # allow_origins=["*"] 时这条路是通的，别让这次收紧顺带堵死它。
@@ -920,7 +920,7 @@ def _write_env(updates: dict[str, str]) -> None:
     if appended:
         if out and out[-1].strip() != '':
             out.append('')
-        out.append('# ---- Easel API keys (added via Web) ----')
+        out.append('# ---- Showly API keys (added via Web) ----')
         out.extend(appended)
     tmp = ENV_FILE.with_suffix('.env.tmp')
     tmp.write_text('\n'.join(out) + '\n', encoding='utf-8')
@@ -1044,7 +1044,7 @@ def run_agent_sync(msg: str, timeout: int = TIMEOUT_DIRECT, session_id: str | No
 
 def check_gateway() -> bool:
     try:
-        # 端口不能写死：Easel 用 --profile easel，OpenClaw 对非默认 profile 会走
+        # 端口不能写死：Showly 用 --profile easel，OpenClaw 对非默认 profile 会走
         # 20000 + fnv1a32(profile) % 40000（easel → 37289），见 easel/gateway_endpoint.py。
         # 回环 healthz 探针不能继承 http_proxy；否则设置页会把健康的本机 gateway 误报离线。
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -1851,7 +1851,7 @@ def _write_env_direct(updates: dict[str, str]) -> None:
     if appended:
         if out and out[-1].strip() != '':
             out.append('')
-        out.append('# ---- Easel 模型配置（Web 设置面板写入）----')
+        out.append('# ---- Showly 模型配置（Web 设置面板写入）----')
         out.extend(appended)
     tmp = ENV_FILE.with_suffix('.env.tmp')
     tmp.write_text('\n'.join(out) + '\n', encoding='utf-8')
@@ -2303,7 +2303,7 @@ async def api_local_agents():
 
 @app.post("/api/settings/local-agents/enable")
 async def api_local_agent_enable(req: LocalAgentEnableRequest):
-    """把一个本机 CLI agent（目前支持 claude-code / gemini-cli）接入 Easel。
+    """把一个本机 CLI agent（目前支持 claude-code / gemini-cli）接入 Showly。
 
     实现是把对应 provider 写进 openclaw.json（复用 _sync_anthropic_provider 的
     原子写套路）。CLI 登录态本身由 openclaw 的 auth store 管理 —— 这里只负责
@@ -3507,7 +3507,7 @@ async def api_chat_stream(req: ChatRequest):
             proc._task = loop.create_task(_run_gateway_turn(proc))
 
         # ---- ask_user 问答题桥接：轮询 gateway 的 pending question，推给前端渲染 ----
-        # 背景：OpenClaw 的 ask_user 注册到 gateway 进程内，Easel 前端不消费 question RPC → 选项不可见。
+        # 背景：OpenClaw 的 ask_user 注册到 gateway 进程内，Showly 前端不消费 question RPC → 选项不可见。
         # 这里在 agent 运行期间每 2s 轮询一次，把新出现的 pending question 以 SSE `question` 事件推送，
         # 前端渲染选项卡片；用户点击后经 /api/chat/question/answer 调 question.resolve 完成回答。
         if GatewayClient is not None and not _QBRIDGE_DISABLED:
@@ -5627,11 +5627,11 @@ if __name__ == "__main__":
     openclaw_base_cmd.cache_clear()
     port = int(os.environ.get("EASEL_PORT", "7860"))
     proxy_url = os.environ.get("VSCODE_PROXY_URI", "").replace("{{port}}", str(port))
-    print("\n  ✦ Easel Web")
+    print("\n  ✦ Showly Web")
     print(f"  http://localhost:{port}")
     if proxy_url:
         print(f"  {proxy_url}")
     print()
-    # 监听 0.0.0.0（非仅回环）是为了兼容 Docker/远程容器端口转发访问 Easel 的场景；
+    # 监听 0.0.0.0（非仅回环）是为了兼容 Docker/远程容器端口转发访问 Showly 的场景；
     # local_write_guard/TrustedHostMiddleware 只挡浏览器发起的跨站请求，见其注释里的局限说明。
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")

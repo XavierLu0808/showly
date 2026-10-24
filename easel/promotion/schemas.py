@@ -104,6 +104,7 @@ class ContentEdit(BaseModel):
 
 
 class ReviewDecision(BaseModel):
+    revision_id: str | None = None
     approved: bool
     approved_by: str = "user"
 

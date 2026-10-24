@@ -15,7 +15,7 @@ from easel.gateway_endpoint import healthz_url, port_source, resolve_gateway_por
 from easel.openclaw_cmd import openclaw_base_cmd
 from easel.direct_api import DirectAPIError, api_config, read_settings
 
-# 项目根目录（Easel/）
+# 项目根目录（Showly/）
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 # OpenClaw 已验证的稳定下限（= 我们实测跑通过的最老版本）。低于它会命中 anthropic provider 必须
@@ -119,7 +119,7 @@ def _chromium_available() -> bool:
 def _gateway_healthy() -> bool:
     """Check OpenClaw gateway is running via healthz endpoint.
 
-    端口走 easel/gateway_endpoint.py：非默认 profile（Easel 的 ``--profile easel``）
+    端口走 easel/gateway_endpoint.py：非默认 profile（Showly 的 ``--profile easel``）
     不是 18789，写死就会「gateway 活着、doctor 报 FAIL」。
     """
     try:
@@ -354,7 +354,7 @@ def _tool_loop_policy() -> list[str]:
 
 
 def cmd_doctor(_args) -> int:
-    print("Easel — 环境检查\n")
+    print("Showly — 环境检查\n")
     all_ok = True
     settings = read_settings(PROJECT_ROOT / ".env")
     from easel import harnesses
@@ -405,7 +405,7 @@ def cmd_doctor(_args) -> int:
 
     for module in ("fastapi", "uvicorn", "sse_starlette", "multipart"):
         all_ok &= _check(f"Python package: {module}", _module_available(module),
-                          "运行 pip install -e . 安装 Easel 运行依赖")
+                          "运行 pip install -e . 安装 Showly 运行依赖")
 
     frontend_ready = (PROJECT_ROOT / "web" / "frontend" / "dist" / "index.html").is_file()
     all_ok &= _check("Web frontend build", frontend_ready,

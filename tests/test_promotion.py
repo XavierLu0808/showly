@@ -25,6 +25,9 @@ from easel.promotion.schemas import (
 def promo_db(tmp_path: Path, monkeypatch):
     """每个测试独立数据库，避免与真实 outputs 下的库串写。"""
     monkeypatch.setenv("EASEL_PROMOTION_DB", str(tmp_path / "promotion.db"))
+    monkeypatch.setattr(service, "OUTPUTS_DIR", tmp_path / "outputs")
+    service.OUTPUTS_DIR.mkdir()
+    monkeypatch.setattr(generation, "_llm_json", lambda *_a, **_kw: None)
     db.reset_thread_connection()
     db.init_db(tmp_path / "promotion.db")
     yield db
@@ -43,8 +46,11 @@ def _fact(pid: str, content: str, category: str = "feature",
 
 
 def _campaign(pid: str, template: str = "launch") -> dict:
-    return service.create_campaign(CampaignCreate(
-        product_id=pid, template=template, channels=["xiaohongshu", "wechat-oa"]))
+    version = service.create_version(pid, VersionCreate(version_label="v1"))
+    service.confirm_version(pid, version["id"])
+    campaign = service.create_campaign(CampaignCreate(
+        product_id=pid, template=template, version_id=version["id"], channels=["xiaohongshu", "wechat-oa"]))
+    return service.update_campaign(campaign["id"], CampaignUpdate(brief_confirmed=True))
 
 
 def _wait_job(job_id: str) -> dict:
@@ -58,7 +64,7 @@ def _wait_job(job_id: str) -> dict:
 
 def _content(cid: str, platform: str = "xiaohongshu", fmt: str = "note") -> dict:
     return service.create_content(ContentCreate(
-        campaign_id=cid, platform=platform, format=fmt))
+        campaign_id=cid, platform=platform, format=fmt, title="产品介绍", body="产品介绍，访问 https://example.test"))
 
 
 # ---------------------------------------------------------------- 阶段一：骨架
@@ -84,7 +90,7 @@ def test_multi_product_isolation(promo_db):
     content = service.get_content(content_b["id"])
     facts_a = [f for f in content.get("facts", [])]
     assert facts_a == []
-    # A 的素材不能被 B 的内容引用（检查会报素材不一致）
+    # A 的素材不能写入 B 的内容，不能只依赖可选检查。
     asset_dir = service.OUTPUTS_DIR / "_promotion" / "assets" / pa["id"]
     asset_dir.mkdir(parents=True, exist_ok=True)
     f = asset_dir / "shot.png"
@@ -92,11 +98,10 @@ def test_multi_product_isolation(promo_db):
     asset_a = service.add_asset(pa["id"], AssetInput(
         kind="screenshot", name="shot",
         path=str(f.relative_to(service.OUTPUTS_DIR)).replace("\\", "/")))
-    service.edit_content(content_b["id"], ContentEdit(
-        title="B 内容", body="正文", asset_refs=[asset_a["id"]]))
-    refreshed = service.get_content(content_b["id"])
-    issues = checks.run_checks(refreshed, refreshed["revisions"][-1])
-    assert any(i["item"] == "素材一致性" and i["severity"] == "error" for i in issues)
+    with pytest.raises(service.PromotionError, match="素材不属于"):
+        service.edit_content(content_b["id"], ContentEdit(
+            title="B 内容", body="正文", asset_refs=[asset_a["id"]]))
+    assert service.get_content(content_b["id"])["revisions"][-1]["asset_refs"] == []
 
 
 def test_unconfirmed_pricing_no_free_claim(promo_db):
@@ -173,8 +178,8 @@ def test_fact_update_invalidates_reviews(promo_db):
     cid = _content_of(campaign)
     service.record_check(cid, [])
     service.approve_content(cid, ReviewDecision(approved=True))
-    version = service.create_version(p["id"], VersionCreate(version_label="v2"))
-    service.confirm_version(p["id"], version["id"])
+    service.add_fact(p["id"], FactInput(category="limit", content="新增适用限制"))
+    db.reset_thread_connection()
     assert service.get_content(cid)["status"] == "ready"
 
 
@@ -210,7 +215,7 @@ def test_job_idempotency_no_duplicate_running(promo_db):
     p = _product()
     campaign = _campaign(p["id"])
     cid = _content_of(campaign)
-    jobs.create_job("checks", content_id=cid)
+    jobs.create_job("checks", content_id=cid, auto_start=False)
     with pytest.raises(service.PromotionError):
         jobs.create_job("checks", content_id=cid)
 
@@ -243,7 +248,7 @@ def test_export_requires_review_and_marks_export_only(promo_db):
     assert any("发布说明" in n for n in names)
     # 导出后内容状态不变成 published；无发布记录
     content = service.get_content(cid)
-    assert content["status"] in ("reviewed", "exported")
+    assert content["status"] == "exported"
     assert service.list_publications(campaign["id"]) == []
 
 

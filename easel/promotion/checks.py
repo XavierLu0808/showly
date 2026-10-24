@@ -9,7 +9,7 @@ import json
 import re
 import sqlite3
 
-from . import db
+from . import db, service
 
 # 平台格式规则（可配置维护；首版内置默认）
 PLATFORM_RULES: dict[str, dict] = {
@@ -25,11 +25,15 @@ LAUNCHED_HINT_RE = re.compile(r"(已上线|已发布|现在就|马上能|直接�
 
 
 def _facts(conn: sqlite3.Connection, campaign_id: str) -> list[dict]:
+    # 审核使用与生成相同的目标版本，不能借用其他版本的免费定价等承诺。
+    campaign = service._get(conn, "campaigns", campaign_id)
+    version = service._validate_version(conn, campaign["product_id"], campaign["version_id"])
+    if version is not None:
+        return json.loads(version["fact_snapshot"])
     rows = conn.execute(
-        "SELECT pf.* FROM product_facts pf"
-        " JOIN campaigns c ON c.product_id = pf.product_id"
-        " WHERE c.id = ? ORDER BY pf.created_at", (campaign_id,)).fetchall()
-    return [dict(r) for r in rows]
+        "SELECT * FROM product_facts WHERE product_id=? ORDER BY created_at", (campaign["product_id"],),
+    ).fetchall()
+    return [dict(row) for row in rows]
 
 
 def _keyword_of(fact_content: str) -> str:
@@ -46,7 +50,11 @@ def run_checks(content: dict, revision: dict) -> list[dict]:
     checks: list[dict] = []
     title = (revision.get("title") or "").strip()
     body = (revision.get("body") or "").strip()
-    facts = _facts(conn, content["campaign_id"])
+    try:
+        facts = _facts(conn, content["campaign_id"])
+    except service.PromotionError as exc:
+        facts = []
+        checks.append({"item": "功能事实", "severity": "error", "message": str(exc), "suggestion": "重新绑定本产品版本"})
     product_row = conn.execute(
         "SELECT p.name, p.website, p.forbidden_claims FROM products p"
         " JOIN campaigns c ON c.product_id = p.id WHERE c.id = ?",
@@ -94,20 +102,13 @@ def run_checks(content: dict, revision: dict) -> list[dict]:
                 f"出现数字表述「{snippet.strip()}」，但没有已登记的证明材料",
                 "补充可授权引用的实测记录/评价，或删除具体数字")
 
-    # 4) 素材一致性：引用的素材必须存在且属于本产品
-    asset_refs = revision.get("asset_refs") or []
-    for asset_id in asset_refs:
-        row = conn.execute("SELECT * FROM assets WHERE id = ?", (asset_id,)).fetchone()
-        if row is None:
-            add("素材一致性", "error", f"引用的素材不存在：{asset_id}", "重新选择素材")
-            continue
-        belongs = conn.execute(
-            "SELECT 1 FROM assets a JOIN campaigns c ON c.product_id = a.product_id"
-            " WHERE a.id = ? AND c.id = ?", (asset_id, content["campaign_id"])).fetchone()
-        if belongs is None:
-            add("素材一致性", "error",
-                f"素材「{row['name']}」不属于本产品，禁止混用其他产品素材",
-                "移除该素材，改用本产品素材库中的文件")
+    # 4) 素材必须属于产品和版本，且真实文件仍在内容库内。
+    try:
+        campaign = service._get(conn, "campaigns", content["campaign_id"])
+        service._validate_version(conn, campaign["product_id"], campaign["version_id"])
+        service._validate_asset_refs(conn, campaign, revision.get("asset_refs") or [])
+    except service.PromotionError as exc:
+        add("素材一致性", "error", str(exc), "重新选择本产品、对应版本的有效素材")
 
     # 5) 平台格式
     rules = PLATFORM_RULES.get(content["platform"])

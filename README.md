@@ -1,409 +1,197 @@
-<p align="left">
-  <img src="assets/readme/logos/zhejiang_university_horizontal_readme.png#gh-light-mode-only" width="106" align="middle" alt="Zhejiang University">
-  <img src="assets/readme/logos/zhejiang_university_horizontal_dark.png#gh-dark-mode-only" width="106" align="middle" alt="Zhejiang University">
-  &nbsp;&nbsp;&nbsp;
-  <img src="assets/readme/logos/peking_university_horizontal_red.png#gh-light-mode-only" width="98" align="middle" alt="Peking University">
-  <img src="assets/readme/logos/peking_university_horizontal_dark.png#gh-dark-mode-only" width="98" align="middle" alt="Peking University">
-</p>
+<h1 align="center">Showly</h1>
 
 <p align="center">
-  <img src="assets/readme/brand.png#gh-light-mode-only" width="640" alt="Easel">
-  <img src="assets/readme/brand-dark.png#gh-dark-mode-only" width="640" alt="Easel">
-  <br>
-  <img src="assets/readme/logos/real_lab_horizontal_readme.png" width="74" alt="REAL Lab">&thinsp;&thinsp;<img src="assets/readme/logos/opendcai_lab_horizontal_readme.png#gh-light-mode-only" width="83" alt="OpenDCAI Lab"><img src="assets/readme/logos/opendcai_lab_horizontal_readme_dark.png#gh-dark-mode-only" width="83" alt="OpenDCAI Lab">
+  面向独立开发者和小团队的 AI 产品宣传平台<br>
+  维护产品档案，组织推广活动，生成内容草稿，审核导出并记录发布效果。
 </p>
 
-<p align="center">
-  <strong>简体中文</strong> · <a href="README_EN.md">English</a>
-</p>
+## 项目介绍
 
-<p align="center">
-  你的私人、持续进化的社媒运营助手<br>
-  从一个想法开始，完成发现、策划、创作、发布与复盘。
-</p>
+Showly 将一个产品的功能、受众、价格、版本和素材集中管理，围绕首次上线、功能更新和场景教程组织推广活动。每次活动分别保存方案、内容修订、任务、审核与发布记录，方便后续修改和复用。
 
-<p align="center">
-  <a href="https://zju-real.github.io/Easel/"><img src="https://img.shields.io/badge/Easel-Project_Page-F05A3C?style=flat-square&logo=googlechrome&logoColor=white" alt="Easel Project Page"></a>
-  <img src="https://img.shields.io/badge/OpenClaw-powered-111827?style=flat-square" alt="Powered by OpenClaw">
-  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+">
-  <a href="docs/skill-function-mapping.md"><img src="https://img.shields.io/badge/Skills-113-0F9D8A?style=flat-square" alt="113 Skills"></a>
-  <a href="https://github.com/ZJU-REAL/Easel/stargazers"><img src="https://img.shields.io/github/stars/ZJU-REAL/Easel?style=flat-square&color=F6C344" alt="GitHub Stars"></a>
-  <a href="https://github.com/ZJU-REAL/Easel/releases/latest"><img src="https://img.shields.io/github/v/release/ZJU-REAL/Easel?style=flat-square&color=0F9D8A&label=release" alt="Latest release"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-2EA44F?style=flat-square" alt="License: Apache 2.0"></a>
-  <a href="assets/readme/wechat-group.png"><img src="https://img.shields.io/badge/微信群-加入交流-07C160?style=flat-square&logo=wechat&logoColor=white" alt="WeChat Group"></a>
-</p>
+目标交付包括平台文案、截图卡片、公众号文章和真实操作演示视频。**当前已实现的是产品与活动管理、文字草稿、检查审核、ZIP 导出和基础效果记录。** 自动获取产品画面、卡片图片渲染、公众号排版和视频成片尚未接入活动流程。
 
-<p align="center">
-  <a href="https://trendshift.io/repositories/195527?utm_source=trendshift-badge&utm_medium=badge&utm_campaign=badge-trendshift-195527" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/195527/daily?language=Python" alt="ZJU-REAL%2FEasel | Trendshift" width="250" height="55"/></a> <a href="https://trendshift.io/repositories/195527?utm_source=trendshift-badge&utm_medium=badge&utm_campaign=badge-trendshift-195527" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/195527/weekly?language=Python" alt="ZJU-REAL%2FEasel | Trendshift" width="250" height="55"/></a>
-</p>
+项目基于 [Easel](https://github.com/ZJU-REAL/Easel) 开发，保留其对话、账号画像、技能与独立发布工具。产品推广业务位于 `easel/promotion/`。当前 Python 包和命令仍名为 `easel`，环境变量使用 `EASEL_*`；运行时请使用下文中的实际命令。
 
-![Easel 产品宣传海报](assets/readme/poster.png)
+## 当前功能
 
-## 🎨 Easel 是什么
+Web 工作台的业务入口是侧栏「我的产品」。页面能力与后端接口的范围如下：
 
-Easel 是一个面向社交媒体创作者的开源内容工作台。它把 OpenClaw Agent、账号画像、内容技能和真实的媒体工具接在一起，让 Agent 不只回答“应该怎么做”，而是直接把内容做出来并归档，且可实现直接/按需发布。
+| 模块 | 当前页面支持 | 后端补充能力 |
+| --- | --- | --- |
+| 产品档案 | 创建与查看产品、添加事实、确认事实、创建并确认版本快照 | 编辑与归档产品，修改事实正文、来源和上线状态 |
+| 素材库 | 上传截图、录屏、品牌和证明素材，查看名称、删除未被引用的记录 | 按产品和版本校验素材，保存引用与使用限制 |
+| 推广活动 | 选择活动模板与受众，生成简报、角度，确认内容清单 | 保存目标、渠道、身份语气、行动引导、计划日期和目标版本等字段 |
+| 内容编辑 | 生成标题和正文，编辑保存、复制文案、查看修订历史和卡片分页文本 | 保存结构化内容、素材引用及生成输入快照 |
+| 检查审核 | 执行规则检查，人工审核与撤销审核 | 审核绑定修订；编辑或产品事实变化后旧审核失效；拦截错误归属和过期生成结果 |
+| 导出发布 | 下载活动 ZIP，回填作品链接并标注人工确认来源 | 保存账号、发布时间、发布状态等记录 |
+| 效果记录 | 录入指标名称与数值，生成 UTM 链接 | 指定指标的平台、内容、统计时间窗；JSON 批次导入与去重 |
+| 任务 | 显示活动任务进度、错误和失败重试入口 | 保存输入快照；重启后识别中断任务；重试复用原输入 |
 
-你可以把它理解成一个会记住你的内容搭档：它了解账号定位、受众、风格、平台限制和历史表现，从热点发现一直陪你做到发布，再把结果带回下一次创作。
+当前输出分别为小红书文案与卡片分页结构、公众号文章草稿、演示视频脚本。ZIP 以 Markdown、结构化 JSON 和已绑定的素材为主。
 
-Easel 围绕五个连续工作流展开：**发现**适合账号的热点与机会，**策划**选题、标题、脚本和排期，
-**创作**图文、音频与视频内容，**发布**经过检查和平台适配的成品直接到对应平台，再通过**归因**分析表现并把有效经验沉淀回账号画像。
+使用时还需注意这些实际边界：
 
-#### 📌 使用提示与研究愿景
+- 页面暂不提供角度勾选、自定义方向、AI 局部改写或素材引用选择。上传素材不会自动将其绑定到内容；后端可通过 `asset_refs` 保存引用。
+- 发布记录页面只填写作品链接，省略发布时间时后端记录当前时间；补录实际时间需使用接口。导出不会创建发布记录或自动提交平台。
+- 指标导入目前是 JSON API，没有 CSV/Excel 文件导入页面；页面也未提供平台、时间窗和内容归属的完整录入。UTM 页面默认使用小红书来源，其他参数可通过接口指定。
+- 采集、图片渲染、公众号 HTML、MP4、登录接管和脱敏尚未形成活动工作流。配置媒体服务或存在相关技能目录，并不代表这些流程已经接通。
+- 活动日期尚未联动既有日历；对话页尚未自动带入当前产品与活动。取消操作目前只对排队任务生效。
 
-> - **推荐使用 Web 前端**：前端提供完整的会话、素材、账号、画像、内容库和发布管理能力，体验和功能比单独使用 CLI 更全面，也是我们推荐的使用方式；部分终端专有的显示问题见[已知问题](docs/known-issues.md)。
-> - **谨慎自动发布到小红书**：小红书平台可能检测自动化操作，存在验证、限流或账号风控风险；建议使用预览与发布前检查，并由用户确认后手动发布，其他平台正常。
-> - **从研究走向真实生活**：Easel 是我们将研究成果应用到真实社媒创作场景的一次实践。后续我们会继续研究 AI 在社媒场景中的社交智能，让 Agent 更好地理解创作者、受众与真实互动。
+目标范围见[产品功能文档](docs/product-promotion-v1.md)，具体交付与验证边界见[实施状态](docs/product-promotion-v1-status.md)。
 
-## ✨ 为什么是 Easel
+## 本地安装与启动
 
-- **一个 Agent 贯穿完整链路**：发现热点、评估选题、规划日历、生成文案与视觉、制作视频、发布和归因在同一个工作流中完成。
-- **画像驱动，而不是一次性生成**：每个账号有独立的定位、风格、受众、平台、偏好和记忆，输出会越来越贴合真实账号。
-- **技能是真执行，不是功能清单**：图片、卡片、配音、字幕、剪辑、短剧和发布技能都配有可运行脚本，成品写入 `outputs/`。
-- **一份素材，多种平台形态**：同一主题可以改写成小红书卡片、短视频、知乎长文或短帖，并遵循不同平台的格式和字数要求。
-- **项目化保存产物**：内容、素材、中间文件和元数据按项目归档，后续修改、重试和发布不会散落在聊天记录里。
-- **真实发布与复盘闭环**：目前支持小红书、抖音、快手、知乎、B 站、微信视频号、微信公众号七个平台的登录、适配和发布，并可回收账号数据。
+### 环境要求
 
-## 🧭 五层内容工作流
+- Python 3.10 及以上，包含 `venv`；Git。
+- Node.js 与 npm，用于构建 React 前端。仅安装 Web 时，当前安装脚本接受 Node 20.19+（20.x）、22.12+（22.x）或 23 及以上；使用 Node 24.x 可同时满足前端需求。
+- 若安装 OpenClaw，脚本要求 Node 24.16+（24.x）、26.1+（26.x）或 27 及以上。
+- FFmpeg 用于音视频处理，Playwright Chromium 用于浏览器登录和发布。它们的可用性不影响产品资料的保存，但会影响相关媒体或浏览器工具。
 
-1. **发现**：聚合热榜、行业新闻、竞品动态和用户讨论，筛选真正适合账号的机会。
-2. **策划**：把机会变成选题、标题、脚本和内容矩阵，写入内容日历。
-3. **创作**：生成文案、卡片、海报、信息图、音频、视频、短剧和论文解读等可发布素材。
-4. **发布**：按平台适配标题、正文、画幅和媒体要求，执行发布前检查并发送到已登录账号。
-5. **归因**：读取播放、互动、评论和内容表现，把有效结构和偏好沉淀回账号画像。
+### macOS / Linux
 
-## 🚀 产品推广平台（第一版）
-
-面向独立开发者和小团队的新业务入口：输入产品资料与真实素材，AI 辅助生成**可审核、可发布、可复用**的宣传内容。侧栏「我的产品」进入，完整流程为：
-
-**产品档案**（事实登记与版本确认，计划中/测试中能力不会被写成已上线）→ **素材库**（截图/录屏/证明材料，被引用素材受删除保护）→ **推广活动**（首次上线/功能更新/场景教程模板，AI 简报与多角度方案）→ **内容制作**（小红书图文卡片、公众号文章、演示视频脚本；模型未配置时降级为档案模板草稿并明确标注）→ **检查与审核**（六类规则检查阻断问题内容；审核绑定修订，编辑即失效）→ **导出与回填**（活动 ZIP 宣传包 + 人工回填发布记录 + UTM 链接）→ **效果记录**（手动录入与批次导入指标，重复批次拒绝）。
-
-详见[产品功能文档](docs/product-promotion-v1.md)、[代码改造方案](docs/product-promotion-v1-implementation.md)与[实施状态](docs/product-promotion-v1-status.md)。
-
-## 🧰 已经落地的能力
-
-| 能力层 | 已实现功能 |
-|---|---|
-| **发现** | 全网热搜聚合、垂类趋势研究、内容缺口分析、节日与事件日历、平台算法动态、竞品分析、行业资讯、跨平台差异、RSS 聚合、UGC 发现 |
-| **策划** | 账号定位分析、受众画像、人设与声音构建、账号诊断、选题矩阵、选题评分、热点结合、系列内容规划、标题与 Hook、文章大纲、分镜脚本、内容日历、跨平台复用、直播策划、营销活动与商单方案 |
-| **文字与视觉** | 社媒文案、短视频与中长视频脚本、小红书笔记、长文、小说、去 AI 感改写、风格迁移、论文解读、金句卡、小红书知识卡、海报、信息图、数据图表、思维导图、对比图、电商详情图、Meme、AI 生图、图片增强、去背景与批处理 |
-| **音频与视频** | 文字转语音、多角色配音、声音克隆、AI 音乐、降噪、混音、语音转文字、音频可视化、AI 视频、AI 短剧、字幕与翻译、视频剪辑、长视频切片、直播高光、横竖版转换、片头片尾、相册视频、音乐卡点、绿幕换背景、视频转图文与章节目录 |
-| **发布与归因** | 发布质量门禁、敏感与版权风险检查、平台搜索优化、发布 Checklist、多平台格式适配；小红书、抖音、快手、知乎、B 站、微信视频号、微信公众号登录与发布；内容日历回写、账号数据、评论洞察、内容复盘、ROI 与画像记忆 |
-
-## 🖥️ 工作台功能示例
-
-下面只展示 Easel 工作台中的四个代表性功能，并不是完整功能清单。更多发现、策划、创作、发布和归因能力，
-可以在工作台的技能库或[能力地图](docs/skill-function-mapping.md)中查看。
-
-<table>
-  <tr>
-    <td width="50%" valign="top">
-      <strong>🧬 账号画像</strong><br>
-      <sub>通过基础信息、社媒链接、运营意图和偏好红线建立账号上下文；一份画像可以跨多个平台和会话持续使用。</sub><br><br>
-      <img src="assets/readme/features/profile.png" width="100%" alt="Easel 账号画像配置">
-    </td>
-    <td width="50%" valign="top">
-      <strong>🔥 热点雷达</strong><br>
-      <sub>聚合微博、抖音、知乎、B 站、百度和头条等平台热榜，帮助 Agent 从实时趋势中筛选适合当前账号的选题。</sub><br><br>
-      <img src="assets/readme/features/discover.png" width="100%" alt="Easel 多平台热点雷达">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <strong>📅 内容日历</strong><br>
-      <sub>统一管理选题、草稿、待发、已发和平台活动，结合节日节点规划内容，并记录每一天的发布安排。</sub><br><br>
-      <img src="assets/readme/features/calendar.png" width="100%" alt="Easel 内容日历">
-    </td>
-    <td width="50%" valign="top">
-      <strong>📣 发布中心</strong><br>
-      <sub>从一份母版内容生成多平台版本，集中完成格式适配、媒体附件、发布前检查、预览和真实发布。</sub><br><br>
-      <img src="assets/readme/features/publish.png" width="100%" alt="Easel 多平台发布中心">
-    </td>
-  </tr>
-</table>
-
-## 🖼️ 真实产物
-
-这些文件来自 Easel 的实际工作流，主页中也有同一批案例的分类展示。
-README 的品牌图、海报和案例图片统一保存在 `assets/readme/`；产品主页使用独立的
-`web/static/showcase/` 图片素材。
-
-### 📚 论文解读与知识卡片
-
-<p align="center">
-  <img src="assets/readme/showcase/spatialevo-cards-strip.jpg" width="49%" alt="SpatialEvo 论文解读卡片">
-  <img src="assets/readme/showcase/spatialladder-cards-strip.jpg" width="49%" alt="SpatialLadder 论文解读卡片">
-</p>
-<p align="center"><sub>SpatialEvo · 论文解读　/　SpatialLadder · VLM 视觉叙事</sub></p>
-
-<p align="center">
-  <img src="assets/readme/showcase/culture-mt-cards-strip.jpg" width="49%" alt="CULTURE-MT 研究卡片">
-  <img src="assets/readme/showcase/knowu-cards-strip.jpg" width="49%" alt="KnowU-Bench 论文解读卡片">
-</p>
-<p align="center"><sub>CULTURE-MT · 文化翻译　/　KnowU-Bench · 侦探漫画</sub></p>
-
-<p align="center">
-  <img src="assets/readme/showcase/agentg2-cards-strip.jpg" width="49%" alt="AGENT G2 论文解读卡片">
-  <img src="assets/readme/showcase/pause-cards-strip.jpg" width="49%" alt="Pause or Fabricate 论文解读卡片">
-</p>
-<p align="center"><sub>AGENT G2 · 暗夜英雄　/　Pause or Fabricate · 角色化科普</sub></p>
-
-### 📖 小说与故事
-
-<p align="center">
-  <img src="assets/readme/showcase/novel-xiuxian.png" width="24%" alt="外门弟子整顿修仙界">
-  <img src="assets/readme/showcase/novel-horror.png" width="24%" alt="中元节那晚">
-  <img src="assets/readme/showcase/novel-romance.png" width="24%" alt="我和相亲对象互演正常人">
-  <img src="assets/readme/showcase/novel-seventh.png" width="24%" alt="第七格">
-</p>
-<p align="center"><sub>搞笑修仙　/　恐怖短篇　/　爱情喜剧　/　悬疑故事</sub></p>
-
-### 🌿 生活分享与梗内容
-
-<p align="center">
-  <img src="assets/readme/showcase/life-color-cards-strip.jpg" width="49%" alt="丰富多彩的生活">
-  <img src="assets/readme/showcase/life-mountain-cards-strip.jpg" width="49%" alt="大山大水">
-</p>
-<p align="center"><sub>生活方式　/　自然记录</sub></p>
-
-<p align="center">
-  <img src="assets/readme/showcase/life-chengdu-cards-strip.jpg" width="49%" alt="成都乡土生活">
-  <img src="assets/readme/showcase/jokes-cards-strip-wide.jpg" width="49%" alt="开学趣事梗卡">
-</p>
-<p align="center"><sub>城市生活　/　梗内容</sub></p>
-
-## 🚀 快速开始
-
-环境要求：Linux、macOS 或 Windows 10/11、Python 3.10 及以上、Python `venv` 模块和 `git`。安装向导会检查 Node.js 24.16+（24.x）、26.1+（26.x）或 27+（25.x 与 26.0 不兼容）、FFmpeg、Playwright/Chromium；缺少 Node.js 时会按系统给出安装引导。
+下面安装 Web 与项目依赖，跳过 OpenClaw 的安装和初始化。预先创建虚拟环境，避免非交互运行安装器时使用系统 Python。
 
 ```bash
-git clone https://github.com/ZJU-REAL/Easel.git
-cd Easel
-bash setup.sh
-```
-
-Windows 原生安装请在 PowerShell 中执行（不需要 WSL）：
-
-```powershell
-git clone https://github.com/ZJU-REAL/Easel.git
-cd Easel
-Set-ExecutionPolicy -Scope Process Bypass
-.\setup.ps1
-```
-
-Windows 安装器会优先通过 `winget` 自动安装缺失的 Python 3.10+、Node.js 24.16+（24.x）、26.1+（26.x）或 27+、Git 和 FFmpeg；25.x 与 26.0 不兼容。如果系统没有 `winget`，再使用官方安装器安装并加入 PATH。随后安装器会创建项目内 `.venv`，安装 Python/Node 依赖、前端生产包和 Playwright Chromium，并使用独立的 `easel` OpenClaw profile。安装完成后可运行 `.venv\Scripts\easel.exe doctor` 检查环境。
-
-安装器支持 Windows 自带的 PowerShell 5.1，安装后可直接运行 `.venv\Scripts\easel.exe web` 启动工作台。原生安装与 Web/CLI 入口已经提供；各技能及浏览器发布的 Windows 全链路兼容仍在持续完善。
-
-`bash setup.sh` 是可重复运行的引导式安装器，直接执行即可，不需要先手动安装 Easel 依赖。安装过程中会：
-
-1. 检查 Python、Python `venv`、Node.js 和 Git；FFmpeg 缺失时会尝试通过系统包管理器安装，装不上只会降级提示（视频/音频类技能不可用），不再中断安装。
-2. 询问是否创建或复用项目虚拟环境 `.venv/`；默认选择 `Y`。如果系统缺少 `venv`，会提示安装对应系统包（例如 Debian/Ubuntu 的 `python3-venv`）。
-3. 检查或安装 OpenClaw，并创建独立的 `easel` profile，不覆盖用户已有的 `~/.openclaw/`。
-4. 安装 Python、Web、媒体和浏览器发布依赖，构建 React Web 工作台并安装 Chromium。Python 依赖与前端构建失败会停止；Chromium 下载失败只降级提示（浏览器登录/发布不可用）。
-5. 同步 skills、校验 OpenClaw 配置并启动 gateway。
-
-**模型 API Key 在浏览器里配，安装器不再在终端询问。** 装完运行 `easel web`，首次打开会直接停在「设置 → 模型配置」，填入 Key 保存即可 —— Easel 会自动写好 OpenClaw 配置并重启 gateway，不需要再跑一遍 `setup.sh`。相比终端向导，这里还能拉取可用模型列表、做连通性自测。也可以直接编辑 `.env` 填好 Key，再运行 `easel doctor` 复检。
-
-安装器全程非交互（只有「是否创建 `.venv`」一问，非交互环境下按默认值），适合 CI 与自动化。非致命问题（FFmpeg、Chromium、gateway 启动、模型未配置等）会收集起来在结尾汇总，并写入 `outputs/_install/last-install.json` 供 `easel doctor` 复述，安装本身仍以 0 退出。若希望这些问题直接让安装失败，设 `EASEL_SETUP_STRICT=1`。
-
-安装完成后，`easel` 命令安装在项目的 `.venv` 中。先激活虚拟环境再运行（每次新开终端都要先激活）：
-
-```bash
-source .venv/bin/activate    # 激活后 easel 命令才可用（Windows：.venv\Scripts\activate）
-easel doctor                 # 检查运行环境
-easel ping                   # 实际测试 gateway 和 Agent
-easel web                    # 启动 Web 工作台
-# 或：easel chat              # 启动终端对话
-```
-
-> 如果提示 `easel: command not found`，就是虚拟环境没激活。也可以不激活、直接用完整路径运行，例如 `.venv/bin/easel doctor`（Windows：`.venv\Scripts\easel.exe doctor`）。
-
-启动 Web 工作台后访问 `http://localhost:7860`。安装完成后可以运行 `easel doctor` 检查环境，
-运行 `easel ping` 检查 gateway 和 Agent 连通性。
-
-如果 Easel 运行在 VSCode Remote SSH 连接的服务器上，需要在 VSCode 的“端口”面板
-转发服务器端口 `7860`，再打开面板显示的本地转发地址（本地端口可能不同）。
-服务器的 `localhost` 不是你电脑的 `localhost`；不要为了访问而把无认证的工作台暴露到公网。
-
-安装器会统一安装 Web、媒体处理和浏览器发布所需的 Python 依赖：
-
-```bash
+git clone https://github.com/XavierLu0808/showly.git
+cd showly
 python3 -m venv .venv
 source .venv/bin/activate
-python3 -m pip install -e .
-python3 -m playwright install chromium
-# 手动安装时仍需提前安装 ffmpeg
+bash setup.sh --skip-openclaw
+easel web
 ```
 
-## ⚙️ 配置说明
+### Windows PowerShell
 
-最小配置只需要在项目根目录 `.env` 中提供一个可用的 LLM：
+```powershell
+git clone https://github.com/XavierLu0808/showly.git
+cd showly
+Set-ExecutionPolicy -Scope Process Bypass
+.\setup.ps1 -SkipOpenClaw
+.\.venv\Scripts\easel.exe web
+```
+
+安装器会安装 Python 依赖、构建前端并尝试准备浏览器依赖。若希望安装或复用 OpenClaw，可改用 `bash setup.sh --openclaw`；Windows 对应 `.\setup.ps1 -OpenClaw`。跳过 OpenClaw 不会自动安装 Codex、OpenCode 或其他 Agent，也不会覆盖已有的执行引擎选择。
+
+启动后访问 **http://localhost:7860**。自定义端口使用：
 
 ```bash
-ANTHROPIC_API_KEY=你的_API_Key
-CLAUDE_MODEL=anthropic/claude-sonnet-4-6
+easel web --port 7870
 ```
 
-也可以使用 OpenAI 或 OpenAI-compatible 服务：
+后续在新终端启动时，macOS / Linux 先运行 `source .venv/bin/activate`；Windows 可继续使用 `.\.venv\Scripts\easel.exe web`。命令未找到时，优先使用项目虚拟环境中的可执行文件。
 
-```bash
-OPENAI_API_KEY=你的_API_Key
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4o
-```
+当前版本面向本地单人使用，Web 进程默认监听 `0.0.0.0`，尚未提供完整的多人认证与资源隔离。通过 SSH 使用服务器时，建议转发 `7860` 端口后访问，避免直接将工作台作为公共服务开放。
 
-如果聊天 API 不提供向量模型，请单独配置 Embedding API；否则 OpenClaw 会默认请求 `text-embedding-3-small`，可能得到“模型不可用”。不配置独立向量 API 时，Easel 会显式使用关键词记忆检索，不会反复请求聊天端点的 embedding 模型：
+## 模型与执行引擎
+
+### 活动草稿生成
+
+产品推广模块独立读取以下配置，与聊天页选择的 Agent 分开。可以在 Web「设置 → 模型配置 → 对话与脚本」中选择「仅聊天模式」，填写 API 地址、模型与 Key 并保存；也可编辑项目根目录 `.env`：
 
 ```dotenv
-EASEL_EMBEDDING_API_KEY=你的向量_API_Key
-EASEL_EMBEDDING_BASE_URL=https://your-embedding-provider.example/v1
-EASEL_EMBEDDING_MODEL=你的向量模型名
+EASEL_DIRECT_API_BASE_URL=https://your-provider.example/v1
+EASEL_DIRECT_API_MODEL=your-model-id
+EASEL_DIRECT_API_KEY=填写真实的APIKey
 ```
 
-修改向量 provider 或模型后，使用对应 profile 重建一次索引：
+请将示例替换为实际服务信息。接口需要兼容 OpenAI Chat Completions；Base URL 填 API 根地址，通常以 `/v1` 结尾。只有服务明确无需鉴权时，Key 才可留空。进程环境变量优先于 `.env`。
 
-```bash
-openclaw --profile easel memory index --force
-```
+**仅配置 OpenClaw、Codex 或 OpenCode 的模型与登录，不能替代推广模块的 `EASEL_DIRECT_API_*` 配置。** `OPENAI_*` 和 `EASEL_LLM_*` 也属于其他通道。推广模块未配置直连模型，或模型调用失败时，会生成模板草稿并记录 `generation_mode=template`；模板仍需人工补充和审核。
 
-或者使用其他 Anthropic-compatible 服务：
+### 对话和工具执行
 
-```bash
-EASEL_LLM_API_KEY=你的_API_Key
-EASEL_LLM_BASE_URL=https://你的服务地址/v1
-CLAUDE_MODEL=你的模型名
-```
+在设置中选择执行引擎：
 
-安装器会把这些标准配置同步到 OpenClaw。OpenClaw 支持但 Easel 没有预设环境变量映射的其他 provider，
-可以按 OpenClaw 自身的 provider/auth 配置方式配置；Easel 不会覆盖这些自定义配置。
+| 引擎 | 用途与依赖 |
+| --- | --- |
+| 仅聊天模式 | 使用直连 API 进行问答、写作和分析；没有本机命令、浏览器或技能执行工具 |
+| OpenClaw | 使用已配置的 OpenClaw gateway / CLI 执行对话和工具 |
+| Codex / OpenCode | 使用本机已安装并完成原生认证的 CLI；连接由项目适配器管理 |
+| 通用 ACP | 连接管理员配置的本机 ACP Agent 命令 |
 
-在 Web 设置的聊天通道中，自定义供应商可勾选“该模型会思考”，保存后会写入模型的
-`reasoning: true`。OpenAI 兼容协议还可选择思考格式（OpenAI、DeepSeek 等），需与上游
-接口实际支持的格式一致；原生 Anthropic 协议使用其自身的思考格式，无需另选。
-新增行默认关闭，避免对非推理模型发送不支持的参数；已有声明会回显。取消勾选会写入
-`reasoning: false`，仅移除该模型的思考相关兼容项，不影响工具等其它能力声明。
-保存 API 不传 `thinking` 时保持原有声明；启用时保留已有努力档位映射，不推测上游支持的档位。
-思考格式会写入 OpenClaw 的 `compat.thinkingFormat`，实际发送哪些参数由其版本和模型适配器决定；
-例如 OpenClaw 2026.9.8 对普通自定义模型仍可能只发送 `reasoning_effort`，不是任意方言转换器。
-这只是能力声明，不保证网关支持推理，亦不覆盖 `EASEL_THINKING_LEVEL=off`；
-API 直连模式不提供此 OpenClaw 专用开关。
-对显式声明 `reasoning: false` 的当前模型，Web 调用 OpenClaw CLI 时会使用 `--thinking off`，
-避免禁用后仍请求不支持的 `medium` 档位。
+新安装若没有已有 Agent 配置，会使用仅聊天模式；已有配置会保留。选择其他引擎后建议新建对话。更多配置和权限说明见[Agent 底座文档](docs/agent-harnesses.md)。
 
-`.env.example` 还列出了视频、音乐、语音等可选模型配置。只需要配置实际使用的能力，也可以在 Web
-工作台的“技能库”中填写；没有配置的媒体 Skill 不会影响聊天、策划和文本创作。常见可选项包括：
+视频、语音、音乐等通道按需单独配置，变量说明见 [.env.example](.env.example)。这些配置不会自动让推广模块具备媒体渲染能力。
 
-| 能力 | 配置入口 | 额外依赖 |
-|---|---|---|
-| AI 视频 | `VIDEO_PROVIDER` 及对应服务的 Key、URL、模型 | 相应视频生成服务 |
-| AI 音乐 | `MUSIC_PROVIDER` 及对应服务配置 | 相应音乐生成服务 |
-| 云端配音 | `VOICE_PROVIDER` 及对应服务配置 | 相应语音生成服务 |
-| 图片与音视频处理 | 无额外模型时也可使用本地工具 | FFmpeg |
-| 浏览器发布 | 在 Web“账号”页面登录目标平台 | Playwright Chromium、有效平台账号 |
+## 完成一次文字推广活动
 
-## 🧩 使用 Easel
+1. 在「我的产品」新建产品，填写名称、介绍和入口。
+2. 添加功能、受众、定价或限制等事实，标记上线状态，逐项确认后点击「拍快照并确认」。未知事实可以保留待确认，不会自动成为产品承诺。
+3. 创建活动，选择首次上线、功能更新或场景教程，并填写受众。页面当前固定使用小红书、公众号和短视频三类渠道。
+4. 生成简报与宣传角度，确认方案以建立内容清单。重复确认不会重复创建同一角度和形式的内容。
+5. 打开单项内容，生成草稿，编辑标题与正文并保存修订。卡片目前预览分页文本，视频目前展示脚本。
+6. 执行检查并人工审核。审核使用活动绑定版本的事实和当前产品红线；阻断问题需先修改。规则检查是启发式辅助，需要人工核对事实和表达。
+7. 返回活动页下载 ZIP，在对应官方平台自行提交，再回填作品链接，按需录入指标。
 
-发布中心提供“自动发布 / 人工审核发布”两条可选路径，默认保留原有自动发布流程。人工路径采用“AI 排版 → 人工审核 → 复制/导出 → 官方发布页亲自提交”，修改稿件或素材后需重新审核，导出和排期不等于已发布；公众号支持富文本复制和 HTML 预览。页面切换不更改全局发布权限；如需在 Web 后端禁用自动提交，可配置 `EASEL_PUBLISH_MODE=manual`。配置边界、登录状态和导出说明见[人工发布工作流](docs/manual-publishing.md)。
+生成前必须有已确认的产品版本，生成内容草稿前必须确认方案。活动绑定版本后不会自动跟随新版本变化；更新产品时应确认新事实、创建新版本，并为该版本创建活动。
 
-常用入口：
+生成任务保存当时的产品、版本事实、活动配置、素材引用和基线修订。重试复用原输入，迟到的生成结果不会覆盖后来的用户编辑。历史任务若没有输入快照，需要重新创建任务。
+
+## 既有工具与常用命令
+
+工作台仍包含对话、账号画像、内容库、技能库及独立发布中心。它们与产品活动模块的接入程度不同。独立人工发布页已有公众号排版与 HTML 导出能力，产品活动导出尚未复用该流程；说明见[人工发布工作流](docs/manual-publishing.md)。
 
 | 命令 | 作用 |
-|---|---|
-| `easel web [--port 7860]` | 启动 Web 工作台 |
-| `easel chat` | 在终端开启多轮对话并选择账号画像 |
-| `easel skill <name> -i "..." [-p <画像>]` | 直接运行指定 Skill；输入也可以是文件路径 |
-| `easel doctor` | 检查 Python、Node.js、OpenClaw 和关键配置 |
-| `easel ping` | 检查 gateway 与 Agent 连通性 |
-| `easel gateway start\|stop\|restart\|status\|logs` | 管理 OpenClaw gateway |
+| --- | --- |
+| `easel web --port 7860` | 启动 Web 工作台 |
+| `easel chat` | 开启终端对话，可选择账号画像 |
+| `easel skill <name> -i "任务" -p "画像名"` | 通过已配置的执行引擎运行指定技能 |
+| `easel doctor` | 检查本机依赖、配置和安装状态 |
+| `easel ping` | 实际请求当前选用的模型或 Agent，验证连通性 |
+| `easel gateway start\|stop\|restart\|status\|logs` | 管理 OpenClaw gateway，仅对应 OpenClaw 路径 |
 
-所有技能都通过 Easel 的 Agent 执行。Agent 会读取对应 `SKILL.md`，调用脚本和工具，并把产物保存到 `outputs/`。
+`doctor` 的检查通过不代表媒体工具或推广流程已经端到端验收。`ping` 需要有效模型配置或原生认证，会产生实际模型请求。
+
+账号画像保存在 `profiles/<名字>/`，用于身份、受众、风格、偏好和记忆；产品事实与版本由推广模块独立保存。活动中的身份与语气字段尚未完整组合画像文件，不能假定对话画像已经自动进入活动生成。
+
+## 数据与代码位置
+
+| 路径 | 内容 |
+| --- | --- |
+| `easel/promotion/` | 产品、活动、修订、审核、任务、发布记录、指标及 `/api/promotion/*` 路由 |
+| `web/app.py` | FastAPI 服务与独立路由挂载 |
+| `web/frontend/src/components/promotion/` | 产品、活动和内容编辑页面 |
+| `web/frontend/src/lib/promotionApi.ts` | 推广 API 请求与前端类型 |
+| `easel/harnesses/` | 执行引擎适配与会话管理 |
+| `profiles/` | 账号画像 |
+| `skills/builtin/`、`skills/shared/` | 既有技能、工具脚本和参考资料 |
+| `outputs/` | 内容文件、任务与本地运行数据 |
+| `agents/` | Agent 提示词、工作区资源和底座支持文件 |
+| `tests/` | 后端与前端回归测试 |
+| `docs/` | 功能文档、改造方案、实施状态与运行说明 |
+
+推广数据库默认位于 `outputs/_promotion/promotion.db`；上传素材位于 `outputs/_promotion/assets/`，活动 ZIP 位于 `outputs/_promotion/exports/`。备份时需同时保留数据库和引用文件。数据库路径可通过进程环境变量 `EASEL_PROMOTION_DB` 覆盖，素材与导出目录仍使用项目 `outputs/`。
+
+Web 优先加载 `web/frontend/dist/` 的构建结果。修改前端后，在 `web/frontend/` 目录重新构建：
 
 ```bash
-easel skill quality-gate -i "帮我检查这条小红书文案"
-easel skill social-content -i "写一条介绍空间智能的微博"
-easel skill quality-gate -i "这是一段待发布文案" -p 科技数码达人
+npm ci
+npm run build
 ```
 
-Web 工作台提供同样的能力，并额外管理会话、素材、账号、画像、内容库和发布状态。拖入对话框的素材会作为结构化附件传给 Agent，用户消息只显示实际输入的文字。
+## 验证与文档
 
-## 🧬 账号画像
-
-一个画像对应 `profiles/<名字>/` 目录，包含六个维度：定位、风格、受众、平台、偏好与红线、长期记忆。
+在已安装项目依赖的虚拟环境中补装 `pytest` 后，可从仓库根目录运行推广模块回归测试：
 
 ```bash
-cp -r profiles/_template "profiles/我的账号"
+python -m pip install pytest
+python -m pytest tests/test_promotion.py tests/test_promotion_review_regressions.py tests/test_promotion_snapshots.py -q
+node --test tests/frontend/*.test.mjs
 ```
 
-在 Web 的“画像”页面可以直接创建和编辑；同一画像可以跨多个已登录平台使用。
+前端测试需要先在 `web/frontend/` 安装 npm 依赖。构建和 lint 在该目录执行：
 
-## 🏗️ 项目结构
-
-```text
-Easel/
-├── easel/                    Python CLI：chat / web / skill / doctor / ping
-├── web/                      FastAPI 后端与 React 工作台
-├── skills/builtin/           发现、策划、制作、发布、归因技能
-├── skills/shared/            跨技能脚本与参考资料
-├── assets/                   品牌、README 媒体与用户导入素材
-├── profiles/                 账号画像（每个画像一个目录）
-├── outputs/                  内容项目与最终产物
-├── agents/                   共享 Agent 工作区、底座配置与同步脚本
-└── docs/                     能力规范、能力地图与架构文档
+```bash
+npm run build
+npm run lint
 ```
 
-Easel 使用独立的 `easel` OpenClaw profile，不会覆盖你本机已有的 OpenClaw 配置。Web 默认运行在 `7860`；gateway 端口由 OpenClaw 决定（非默认 profile 会分配哈希端口，如 `easel` → `37289`，不是 `18789`），Easel 会自动解析，无需手配。
-
-## 📑 文档
-
-- [能力地图](docs/skill-function-mapping.md)
-- [SKILL 接口规范](docs/SKILL-SPEC.md)
-- [提示词与架构分层](docs/prompt-stack.md)
-- [已知问题](docs/known-issues.md)
-- [完整致谢](docs/ACKNOWLEDGMENTS.md)
-
-## 🗺️ 开发计划（Roadmap）
-
-按优先级排列，欢迎在 Issue / PR 中认领或补充：
-
-- [ ] **1. 适配 Windows 系统** —— 完善原生 Windows 下安装、路径与编码、浏览器发布等全链路兼容。
-- [ ] **2. 安装简易化** —— 降低上手门槛，减少手动步骤，提供更顺滑的一键安装体验。
-- [ ] **3. 优化页面 Agent 交互** —— 改进 Web 工作台的对话交互、加载逻辑与流式反馈等体验细节。
-- [ ] **4. 适配更多 Agent Harness** —— 支持 OpenClaw 之外的更多 Agent 运行框架，例如 Claude Code、DeepSeek harness、Codex 等。
-
-## 🙏 致谢
-
-Easel 的技能体系和工作流受益于许多优秀的开源项目、工具与内容方法论。感谢所有原作者和社区贡献者；
-具体项目、用途和许可信息请查看[完整致谢](docs/ACKNOWLEDGMENTS.md)。
-
-欢迎参与贡献与讨论。有想法、问题或改进建议，欢迎提交 Issue 或 PR；也欢迎扫码加入我们的微信交流群：
-
-<p align="center">
-  <img src="assets/readme/wechat-group.png" width="240" alt="Easel 微信交流群二维码">
-</p>
-<p align="center"><sub>Easel 交流群 · 二维码定期更新，若已失效请通过 Issue 联系我们</sub></p>
-
-### 🤝 Contributors
-
-<table>
-  <tr>
-    <td align="center" width="84"><a href="https://github.com/lidingm"><img src="https://github.com/lidingm.png?size=96" width="72" height="72" alt="lidingm"><br><strong>lidingm</strong></a></td>
-    <td align="center" width="84"><a href="https://github.com/qywMichelle"><img src="https://github.com/qywMichelle.png?size=96" width="72" height="72" alt="qywMichelle"><br><strong>qywMichelle</strong></a></td>
-    <td align="center" width="84"><a href="https://github.com/wulinjuan"><img src="https://github.com/wulinjuan.png?size=96" width="72" height="72" alt="wulinjuan"><br><strong>wulinjuan</strong></a></td>
-    <td align="center" width="84"><a href="https://github.com/arctanxarc"><img src="https://github.com/arctanxarc.png?size=96" width="72" height="72" alt="arctanxarc"><br><strong>arctanxarc</strong></a></td>
-    <td align="center" width="84"><a href="https://github.com/hongxingli319"><img src="https://github.com/hongxingli319.png?size=96" width="72" height="72" alt="hongxingli319"><br><strong>hongxingli319</strong></a></td>
-    <td align="center" width="84"><a href="https://github.com/mengyuyuan"><img src="https://github.com/mengyuyuan.png?size=96" width="72" height="72" alt="mengyuyuan"><br><strong>mengyuyuan</strong></a></td>
-    <td align="center" width="84"><a href="https://github.com/Dear47"><img src="https://github.com/Dear47.png?size=96" width="72" height="72" alt="Dear47"><br><strong>Dear47</strong></a></td>
-  </tr>
-</table>
-
-## ⚖️ 许可证
-
-[Apache 2.0](LICENSE)
-
-## 🌟 Star 趋势
-
-<p align="center">
-  <a href="https://star-history.com/#ZJU-REAL/Easel&Date">
-    <img src="https://api.star-history.com/svg?repos=ZJU-REAL/Easel&type=Date" width="720" alt="Easel Star History Chart">
-  </a>
-</p>
+- [产品功能文档](docs/product-promotion-v1.md)：目标范围和验收标准。
+- [代码改造方案](docs/product-promotion-v1-implementation.md)：数据模型、复用路径与实施要求。
+- [实施状态](docs/product-promotion-v1-status.md)：当前交付、验证范围与尚缺能力。
+- [Agent 底座](docs/agent-harnesses.md)：执行引擎与本机认证说明。
+- [人工发布](docs/manual-publishing.md)：独立发布页的审核和导出流程。
+- [技能能力地图](docs/skill-function-mapping.md)：既有技能与工具说明。
+- [已知问题](docs/known-issues.md)：运行环境与功能限制。
